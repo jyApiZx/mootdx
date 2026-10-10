@@ -1,139 +1,65 @@
 # mootdx
 
-本仓库按 [mootdx/mootdx](https://github.com/mootdx/mootdx) 的在线行情用法重新封装。`Quotes` 走 `Api.dll` 的 `TdxHq_*` / `TdxExHq_*`，含 L2 十档、逐笔成交和逐笔委托。不是 mootdx 官方。
+按 mootdx 的 `Quotes` 用法取在线行情。K 线、分时、报价和逐笔改由 `Api.dll` 提供。本地 `Reader` 仍读取本机通达信数据文件。
+
+已有 mootdx 脚本只需换行情地址和授权账号。交易、L2 十档和逐笔也使用同一份 DLL。
+
+## Api.dll
+
+面向 A 股的交易和行情库，支持大部分券商。
+
+| 能力 | 说明 |
+| --- | --- |
+| 券商交易 | 登录、资金、持仓、当日委托、当日成交、买入、卖出、撤单 |
+| 在线行情 | K 线、指数、分时、实时报价、财务、除权除息、板块 |
+| L2 | 十档、逐笔成交、逐笔委托 |
+| 扩展行情 | `market="ext"`，期货、期权等 |
+
+DLL、完整函数表和各语言示例见 [stockapi](https://github.com/jyApiZx/stockapi)。接入与授权请联系 Telegram：`JyApi888`。
+
+进程位数须与 `Api.dll` 一致。
+
+## 在线行情
 
 ```python
 from mootdx.quotes import Quotes
-client = Quotes.factory(market="std", server=("YOUR_HQ_HOST", 7709), account="YOUR_ACCOUNT", password="YOUR_PASSWORD")
+
+client = Quotes.factory(
+    market="std",
+    server=("YOUR_HQ_HOST", 7709),
+    account="YOUR_ACCOUNT",
+    password="YOUR_PASSWORD",
+)
+
+client.bars(symbol="600036", frequency=9, offset=10)
+client.quotes(symbol=[(1, "600036")])
+client.minute(symbol="000001")
+client.transaction(symbol="000001", start=0, offset=100)
 ```
 
-本地 `Reader` 仍只读本机通达信文件。DLL 与函数说明见 [jyApiZx/stockapi](https://github.com/jyApiZx/stockapi)。接入请咨询 Telegram：`JyApi888`。
+市场：`0` 深圳，`1` 上海，`2` 北京。L1 常见端口 `7709`，L2 常见端口 `7719`。
 
-通达信数据读取接口
-==================
+十档、逐笔成交、逐笔委托：
 
-[![image](https://badge.fury.io/py/mootdx.svg)](http://badge.fury.io/py/mootdx)
-[![image](https://img.shields.io/travis/bopo/mootdx.svg)](https://travis-ci.org/mootdx/mootdx)
-[![Documentation Status](https://readthedocs.org/projects/mootdx/badge/?version=latest)](https://mootdx.readthedocs.io/zh/latest/?badge=latest)
-[![Updates](https://pyup.io/repos/github/mootdx/mootdx/shield.svg)](https://pyup.io/repos/github/mootdx/mootdx/)
-
-如果喜欢本项目可以在右上角给颗⭐！你的支持是我最大的动力😎！
-
-**郑重声明: 本项目只作学习交流, 不得用于任何商业目的.**
-
--   开源协议: MIT license
--   在线文档: <https://www.mootdx.com>
--   国内镜像: <https://gitee.com/ibopo/mootdx>
--   项目仓库: <https://github.com/mootdx/mootdx>
--   问题交流: <https://github.com/mootdx/mootdx/issues>
-
-版本更新(倒序)
---------------
-
-版本更新日志: <https://mootdx.readthedocs.io/zh_CN/latest/history/>
-
-运行环境
---------
-
--   操作系统: Windows / MacOS / Linux 都可以运行.
--   Python: 3.8 以及以上版本.
-
-安装方法
---------
-
-> 新手建议使用 `pip install -U 'mootdx[all]'` 安装
-
-### PIP 安装方法
-```shell
-
-# 包含核心依赖安装
-pip install 'mootdx'
-
-# 包含命令行依赖安装, 如果使用命令行工具可以使用这种方式安装
-pip install 'mootdx[cli]'
-
-# 包含所有扩展依赖安装, 如果不清楚各种依赖关系就用这个命令
-pip install 'mootdx[all]'
+```python
+client.client.get_security_quotes10([(1, "600036")])
+client.client.get_detail_transaction_data(1, "600036", 0, 100)
+client.client.get_detail_order_data(1, "600036", 0, 100)
 ```
 
-### 升级安装
+扩展行情把 `market` 设为 `"ext"`，端口常用 `7727`。
 
-```shell
-pip install -U tdxpy mootdx
-```
+## 本地文件
 
-> 如果不清楚各种依赖关系就用这个命令 `pip install -U 'mootdx[all]'`
-
-使用说明
---------
-
-> 以下只列举一些例子, 详细说明请查看在线文档: <https://www.mootdx.com>
-
-通达信离线数据读取
+`Reader` 不经过 DLL，只读本机通达信目录里的日线和分钟文件。
 
 ```python
 from mootdx.reader import Reader
 
-# market 参数 std 为标准市场(就是股票), ext 为扩展市场(期货，黄金等)
-# tdxdir 是通达信的数据目录, 根据自己的情况修改
-
-reader = Reader.factory(market='std', tdxdir='C:/new_tdx')
-
-# 读取日线数据
-reader.daily(symbol='600036')
-
-# 读取分钟数据
-reader.minute(symbol='600036')
-
-# 读取时间线数据
-reader.fzline(symbol='600036')
+reader = Reader.factory(market="std", tdxdir="C:/new_tdx")
+reader.daily(symbol="600036")
 ```
 
-通达信线上行情读取
+## 说明
 
-```python
-from mootdx.quotes import Quotes
-
-# 标准市场
-client = Quotes.factory(market='std', multithread=True, heartbeat=True)
-
-# k 线数据
-client.bars(symbol='600036', frequency=9, offset=10)
-
-# 指数
-client.index(symbol='000001', frequency=9)
-
-# 分钟
-client.minute(symbol='000001')
-```
-
-通达信财务数据读取
-
-```python
-from mootdx.affair import Affair
-
-# 远程文件列表
-files = Affair.files()
-
-# 下载单个
-Affair.fetch(downdir='tmp', filename='gpcw19960630.zip')
-
-# 下载全部
-Affair.parse(downdir='tmp')
-```
-
-加微信交流
-----------
-
-![](docs/img/IMG_2851.JPG)
-
-常见问题
---------
-
-M1 mac 系统PyMiniRacer不能使用，访问:
-<https://github.com/sqreen/PyMiniRacer/issues/143>
-
-
-## Stargazers over time
-
-[![Stargazers over time](https://starchart.cc/mootdx/mootdx.svg)](https://starchart.cc/mootdx/mootdx)
+调用风格来自 mootdx。在线行情由 `Api.dll` 完成。许可证见 [LICENSE](LICENSE)。
