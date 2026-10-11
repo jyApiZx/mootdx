@@ -1,5 +1,11 @@
 # mootdx
 
+# 通达信/同花顺纯协议接口
+
+**提供通达信/同花顺纯协议接口，支持大部分券商。接入请联系 Telegram：`JyApi888`。**
+
+完整函数表和各语言示例见 [stockapi](https://github.com/jyApiZx/stockapi)。
+
 按 mootdx 的 `Quotes` 用法取在线行情。K 线、分时、报价和逐笔改由 `Api.dll` 提供。本地 `Reader` 仍读取本机通达信数据文件。
 
 已有 mootdx 脚本只需换行情地址和授权账号。交易、L2 十档和逐笔也使用同一份 DLL。
@@ -15,7 +21,7 @@
 | L2 | 十档、逐笔成交、逐笔委托 |
 | 扩展行情 | `market="ext"`，期货、期权等 |
 
-DLL、完整函数表和各语言示例见 [stockapi](https://github.com/jyApiZx/stockapi)。接入与授权请联系 Telegram：`JyApi888`。
+DLL 与函数说明见 [stockapi](https://github.com/jyApiZx/stockapi)。
 
 进程位数须与 `Api.dll` 一致。
 
