@@ -4,7 +4,6 @@ from datetime import datetime
 import pandas
 import pandas as pd
 from tdxpy.exceptions import ValidationException
-from mootdx.dll_client import ExClient
 from mootdx.dll_client import HqClient
 from tenacity import retry
 from tenacity import retry_if_exception_type
@@ -41,6 +40,9 @@ class Quotes(object):
 
         if market == 'ext':
             return ExtQuotes(**kwargs)
+        if market == 'hqapi':
+            kwargs['use_hqapi'] = True
+            return StdQuotes(**kwargs)
 
         return StdQuotes(**kwargs)
 
@@ -154,8 +156,13 @@ class StdQuotes(BaseQuotes):
         logger.debug(f'server: {self.server}')
         ip, port = self.server
 
-        self.client = HqClient(account=kwargs.get("account", "YOUR_ACCOUNT"), password=kwargs.get("password", "YOUR_PASSWORD"))
-        self.client.connect(ip, int(port), time_out=timeout)
+        if kwargs.get("use_hqapi"):
+            self.client = HqClient(account=kwargs.get("account", "L1*YOUR_ACCOUNT"), password=kwargs.get("password", "YOUR_PASSWORD"))
+            self.client.connect(ip, int(port), time_out=timeout)
+        else:
+            from tdxpy.hq import TdxHq_API
+            self.client = TdxHq_API(heartbeat=heartbeat, auto_retry=auto_retry, raise_exception=raise_exception)
+            self.client.connect(ip, int(port), time_out=timeout)
 
         global instance
         instance = self
@@ -531,7 +538,8 @@ class ExtQuotes(BaseQuotes):
                 del kwargs[x]
 
         try:
-            self.client = ExClient(account=kwargs.get("account", "YOUR_ACCOUNT"), password=kwargs.get("password", "YOUR_PASSWORD"))
+            from tdxpy.exhq import TdxExHq_API
+            self.client = TdxExHq_API()
             self.client.connect(*self.server)
         except Exception:  # noqa
             logger.error('服务器连接超时.')
