@@ -1,0 +1,33 @@
+# mootdx
+
+# 通达信/同花顺纯协议接口
+
+**同花顺/通达信纯协议交易接口，L1、L2 行情接口。直连券商，无需启动客户端，支持大部分券商。产品介绍见 [thsapi.com](https://thsapi.com/)。技术支持请联系 [Telegram：@Jyapi888](https://t.me/Jyapi888)**
+
+不点屏幕，不抢鼠标，程序直接连券商。下载后用模拟盘就能测查询、下单和撤单。已经有项目时，打开 [交给AI 代做](https://thsapi.com/ai.html)，把提示词交给正在改项目的 AI。行情有 L1，也有十档、买卖队列和逐笔。
+
+通达信行情的另一套 Python 接口。`Quotes.factory(market="std")` 仍读取在线 7709 行情，本地 `Reader` 仍读本机通达信数据文件。
+
+老的 `TdxHqApi` 已经没人维护。要心跳、断线重连和后来补上的函数时，用 `market="hqapi"`，加载 [HqApi.dll](https://github.com/jyApiZx/stockapi)。L1 是实时行情、Tick、买卖五档，以及一分钟、五分钟 K 线。L2 是十档、买卖队列和逐笔，端口 7719，账号不要加前缀。使用 L2 数据，需要先具有 L2 账户：[通达信L2普及版](https://vip.tdx.com.cn/site/app/pc-mall/main.html#/page_product_pj_cf?param=%7B%22categoryId%22%3A%224%22%7D)。断线由 DLL 自己重连。
+
+行情包：[64 位](https://github.com/jyApiZx/stockapi/releases/download/hqapi-1.0.3/hqapi_1.0.3_x64.zip)、[32 位](https://github.com/jyApiZx/stockapi/releases/download/hqapi-1.0.3/hqapi_1.0.3_x32.zip)。
+
+## 原来的在线行情
+
+```python
+from mootdx.quotes import Quotes
+
+client = Quotes.factory(market="std")
+client.bars(symbol="600036", frequency=9, offset=10)
+```
+
+## HqApi
+
+```python
+from mootdx.quotes import Quotes
+
+client = Quotes.factory(market="hqapi", server=("101.227.73.20", 7709), account="L1*YOUR_ACCOUNT", password="YOUR_PASSWORD")
+client.bars(symbol="600036", frequency=9, offset=10)
+```
+
+账号写成 `L1*账号`。程序位数要和 `HqApi.dll` 一致。
