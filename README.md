@@ -12,7 +12,7 @@
 
 老的 `TdxHqApi` 已经没人维护。要心跳、断线重连和后来补上的函数时，用 `market="hqapi"`，加载 [HqApi.dll](https://github.com/jyApiZx/stockapi)。L1 是实时行情、Tick、买卖五档，以及一分钟、五分钟 K 线。L2 是十档、买卖队列和逐笔，端口 7719，账号不要加前缀。使用 L2 数据，需要先具有 L2 账户：[通达信L2普及版](https://vip.tdx.com.cn/site/app/pc-mall/main.html#/page_product_pj_cf?param=%7B%22categoryId%22%3A%224%22%7D)。断线由 DLL 自己重连。
 
-行情包：[64 位](https://github.com/jyApiZx/stockapi/releases/download/hqapi-1.0.3/hqapi_1.0.3_x64.zip)、[32 位](https://github.com/jyApiZx/stockapi/releases/download/hqapi-1.0.3/hqapi_1.0.3_x32.zip)。
+行情包：[64 位](https://github.com/jyApiZx/stockapi/releases/download/hqapi-1.0.6/hqapi_1.0.6_x64.zip)、[32 位](https://github.com/jyApiZx/stockapi/releases/download/hqapi-1.0.6/hqapi_1.0.6_x32.zip)。
 
 ## 原来的在线行情
 
